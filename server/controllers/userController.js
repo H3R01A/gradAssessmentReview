@@ -66,7 +66,8 @@ userController.verifyUser = async (req, res, next) => {
 
     //check to see if password was correct, if not, redirected to login page
     if (!result) {
-      res.redirect("/login");
+      console.log("right before redirect");
+      res.redirect("/signup");
     }
 
     //implementation BEFORE USING bcrypt
@@ -101,24 +102,20 @@ userController.verifyUser = async (req, res, next) => {
 
 userController.getItems = async (req, res, next) => {
   try {
-    //ATTENTION: THIS IS HOW YOU SEND ERROR MESSAGE WITH RESPONSE!!!!
-    //INVOKE NEXT AND PASS AN ERROR MESSAGE
-    if (!username || !password) {
-      console.log("this");
-      return next({
-        message:
-          "Error Signing Up. Please try again with a username and/or password",
-      });
-    }
+    console.log("made it userController - getItems");
+    //pull username and password from request body
 
-    //add a new user to the User Collection
-    const newUser = await User.create({
-      username,
-      password,
-    });
-    console.log({ newUser });
+    //! we are pulling the userid from locals
+    const userID = res.locals.userId;
 
-    res.locals.user = newUser;
+    //! The below is finding a user and then we are going to modify the items array assigned to the user
+    const user = await User.findOne({ _id: userID });
+
+  
+    console.log("this is user in getItems controller", { user });
+
+ 
+    res.locals.user = user;
 
     return next();
   } catch (err) {
@@ -134,17 +131,29 @@ userController.getItems = async (req, res, next) => {
 
 userController.addItem = async (req, res, next) => {
   try {
+    console.log("made it userController - addItem");
     //pull username and password from request body
 
-    const { name } = req.body;
+    const { taskName } = req.body;
 
-    console.log({ name });
+    console.log({ taskName });
 
     //! we are pulling the userid from locals
     const userID = res.locals.userId;
 
     //! here we are going to query the database looking for the user because we have their id from the session
-    const user = await User.findOne({ _id: userID });
+    // const user = await User.findOne({ _id: userID });
+
+    //! The below is finding a user and pushing a value onto the array
+    //https://www.mongodb.com/docs/v4.2/reference/method/db.collection.findAndModify/
+    //operators such as $push for adding values to database that is an array https://www.mongodb.com/docs/v4.2/reference/operator/update/#id1
+    const user = await User.findOneAndUpdate(
+      { _id: userID },
+      { $push: { items: { name: taskName } } },
+
+      //the below new options ensures the new value is returned
+      { new: true, useFindAndModify: false }
+    );
 
     console.log("this is user in addItem controller", { user });
     //check to see if user does not exist within database
@@ -153,14 +162,6 @@ userController.addItem = async (req, res, next) => {
       res.redirect("/signup");
     }
 
-    //add to items array
-
-    user.items = [{ name }];
-
-    //update user on database
-    await User.findOneAndUpdate({ _id: userID }, { items: user.items });
-
-    //return back out
     res.locals.user = user;
     return next();
   } catch (err) {
@@ -174,8 +175,98 @@ userController.addItem = async (req, res, next) => {
   }
 };
 
-userController.updateItem = async (req, res, next) => {};
+userController.updateItem = async (req, res, next) => {
+  try {
+    console.log("made it userController - updateItem");
+    //pull username and password from request body
 
-userController.deleteItem = async (req, res, next) => {};
+    const { taskName, taskStatus } = req.body;
+
+    console.log({ taskName, taskStatus });
+
+    //! we are pulling the userid from locals
+    const userID = res.locals.userId;
+
+    //! here we are going to query the database looking for the user because we have their id from the session
+    // const user = await User.findOne({ _id: userID });
+
+    //! The below is finding a user and then we are going to modify the items array assigned to the user
+    const user = await User.findOne({ _id: userID });
+
+    //Updating the status that needs to be - iterate over array until you find the object with the name property matching the task name. then update the status
+    user.items.forEach((task) => {
+      if (task.name === taskName) {
+        task.status = taskStatus;
+      }
+    });
+
+    console.log("this is user in updateItem controller", { user });
+
+    await User.findOneAndUpdate(
+      { _id: userID },
+      { items: user.items },
+      //the below new options ensures the new value is returned
+      { new: true, useFindAndModify: false }
+    );
+
+    res.locals.user = user;
+
+    return next();
+  } catch (err) {
+    console.log("Error in userController.updateItem" + err);
+    next({
+      log: "error on userController.updateItem middleware function",
+      message: {
+        error: err,
+      },
+    });
+  }
+};
+
+userController.deleteItem = async (req, res, next) => {
+  try {
+    console.log("made it userController - deleteItem");
+    //pull username and password from request body
+
+    const { taskName } = req.body;
+
+    console.log({ taskName });
+
+    //! we are pulling the userid from locals
+    const userID = res.locals.userId;
+
+    //! here we are going to query the database looking for the user because we have their id from the session
+    // const user = await User.findOne({ _id: userID });
+
+    //! The below is finding a user and pushing a value onto the array
+    //https://www.mongodb.com/docs/v4.2/reference/method/db.collection.findAndModify/
+    //operators such as $push for adding values to database that is an array https://www.mongodb.com/docs/v4.2/reference/operator/update/#id1
+
+    //! The below is finding a user and then we are going to modify the items array assigned to the user
+    const user = await User.findOne({ _id: userID });
+
+    //iterate through the items and filter out the one task to be deleted
+    const updatedTasks = user.items.filter((task) => task.name !== taskName);
+
+    await User.findOneAndUpdate(
+      { _id: userID },
+      { items: updatedTasks },
+      //the below new options ensures the new value is returned
+      { new: true, useFindAndModify: false }
+    );
+
+    return next();
+
+    // const deletedTask = await User.findOneAndDelete({item: { $elemMatch: { name: taskName } }});
+  } catch (err) {
+    console.log("Error in userController.deleteItem" + err);
+    next({
+      log: "error on userController.deleteItem middleware function",
+      message: {
+        error: err,
+      },
+    });
+  }
+};
 
 module.exports = userController;

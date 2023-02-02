@@ -26,7 +26,7 @@ app.use(express.urlencoded({
 }));
 
 
-const MONGO_URI = 'mongodb+srv://test1234:12345@cluster0.bas8bvo.mongodb.net/?retryWrites=true&w=majority'
+const MONGO_URI = 'mongodb://localhost:27017/gradAssessment'
 
 // Server/database initilization
 mongoose.set('strictQuery', true);
@@ -51,7 +51,7 @@ mongoose
 
 
 
-app.get("/", cookieController.setCookie,(req, res) => {
+app.get("/", (req, res) => {
 
   res.status(200).sendFile(path.join(__dirname, "../client/login.html"));
 });
@@ -59,11 +59,10 @@ app.get("/", cookieController.setCookie,(req, res) => {
 
 
 //! Route hanlder for controllers and moving around the application
-app.use("/", apiRouter);
+app.use("/api", apiRouter);
 
 //! The following makes the client folder "public" and therefore allows the JS to run
 app.use('/',express.static('client'));
-
 
 /**
  * main application
@@ -75,7 +74,6 @@ app.get("/app", (req, res) => {
 /**
  * signup
  */
-
 app.get("/signup", (req, res) => {
   res.status(200).sendFile(path.join(__dirname, "../client/signup.html"));
 });

@@ -7,11 +7,21 @@ document.addEventListener("DOMContentLoaded", () => {
   //create a function to handle the creation of the todo list
   todo(container);
 
-  //TODO: Potentially try and fetch data from backend and then pass the array of values here
-    //then loop through them
-  
+  //TODO: Was able to fetch data -> Now see if you can invoke the add method and see if you can items to the page
+  //then loop through them
 
+  fetch("http://localhost:3000/api/getItems")
+    .then((data) => data.json())
+    .then((data) => {
+      console.log("loaded data", data);
 
+      //TODO: Try to add data here...
+    })
+    .catch((err) => {
+      console.log("this is err", err);
+      alert("being redirected to login page because of an error");
+      window.location.replace("http://localhost:3000/");
+    });
 });
 
 //! The todo function
@@ -55,12 +65,10 @@ function todo(container) {
   //button to add new items
   form.appendChild(button);
 
-  //TODO: refactor add the event listener to be on the form
-
+  //!Add event listner to be on the form to be when you a person submits, they submit a form to the backend
   form.addEventListener("submit", (e) => {
     //to prevent the form from auto submitting
     e.preventDefault();
-
 
     //! Add function being invoked. This is when the form is submitted
 
@@ -77,11 +85,15 @@ function todo(container) {
       }),
     };
 
-    fetch("http://localhost:3000/add", options)
+    fetch("http://localhost:3000/api/add", options)
       .then((data) => data.json())
       .then((data) => {
-        console.log(data);
-        //append the most recent item to bottom of the form items
+        console.log("added following task to the database", data);
+      })
+      .catch((err) => {
+        console.log("this is err", err);
+        alert("being redirected to login page because of an error");
+        window.location.replace("http://localhost:3000/");
       });
 
     //reset the form after we are done
@@ -90,9 +102,9 @@ function todo(container) {
 
   /**
    *
-   * !ADD FUNCTION - to actually put a new element on the screen
+   * !ADD FUNCTION - to actually put a new task to the screen
    */
-  function add(input) {
+  function add(input, status) {
     console.log(input);
     //create an li element to be a "todo" item
     const item = document.createElement("li");
@@ -106,13 +118,14 @@ function todo(container) {
     //create checkbox to append to item as well
     const itemCheckbox = document.createElement("input");
     itemCheckbox.setAttribute("type", "checkbox");
+    itemCheckbox.checked = status ? true : false;
 
     //add class to checkbox
     itemCheckbox.classList.add("checkbox-todo");
 
-
-    const deleteButton = document.createElement('button');
-
+    const deleteButton = document.createElement("button");
+    deleteButton.setAttribute("id", "btn-delete");
+    deleteButton.innerText = "Delete";
 
     //append to the item the input field and the checkbox
 
@@ -137,11 +150,12 @@ function todo(container) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          taskName: itemInput.value,
           taskStatus: e.target.checked,
         }),
       };
 
-      fetch("http://localhost:3000/update", options)
+      fetch("http://localhost:3000/api/update", options)
         .then((data) => data.json())
         .then((data) => {
           console.log(data);
@@ -169,7 +183,7 @@ function todo(container) {
           }),
         };
 
-        fetch("http://localhost:3000/update", options)
+        fetch("http://localhost:3000/api/update", options)
           .then((data) => data.json())
           .then((data) => {
             console.log(data);
@@ -178,13 +192,8 @@ function todo(container) {
       }
     });
 
-
     deleteButton.addEventListener("click", (e) => {
-
       e.preventDefault();
-
-
-      console.log('you are about to delete a task completely');
 
       //TODO: fix this part
       const options = {
@@ -193,22 +202,20 @@ function todo(container) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          doneTaskName: e.target.value,
+          taskName: itemInput.value,
         }),
       };
 
-      fetch("http://localhost:3000/update", options)
+      fetch("http://localhost:3000/api/delete", options)
         .then((data) => data.json())
         .then((data) => {
           console.log(data);
           //append the most recent item to bottom of the form items
         });
 
-
+      item.remove();
     });
 
-
-  
     //append the item to underneath the <ul> element
     //https://developer.mozilla.org/en-US/docs/Web/API/Element/insertAdjacentElement
 
@@ -220,8 +227,5 @@ function todo(container) {
     // itemList.appendChild(item);
 
      */
-
-    
-
   }
 }

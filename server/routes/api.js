@@ -10,17 +10,16 @@ const router = express.Router();
 //route handler for sending back information 
 
 
-//TODO: Update route to handle getting items
-// router.get('/app', userController.getItems, (req, res) => {
 
-//     return res.status(200).json(res.locals.items);
+router.get('/getItems', sessionController.isLoggedIn, userController.getItems, (req, res) => {
 
-// });
+    return res.status(200).json(res.locals.user.items);
 
+});
 
 router.post('/signup', userController.createUser, sessionController.startSession, cookieController.setSSIDCookie, (req, res) => {
     
-    //? return data or html file?
+    
     console.log('made it out of creating a user');
     return res.status(200).redirect('/app');
 });
@@ -32,7 +31,7 @@ router.post('/signup', userController.createUser, sessionController.startSession
  */
 router.post('/login', userController.verifyUser, sessionController.startSession, cookieController.setSSIDCookie, (req, res) => {
     
-    //? return data or html file?
+  
     return res.status(200).redirect('/app');
 });
 
@@ -42,21 +41,21 @@ router.post('/login', userController.verifyUser, sessionController.startSession,
  */
 router.post('/add',sessionController.isLoggedIn, userController.addItem, (req, res) => {
     
-    //? return data or html file?
-    return res.status(200).json('hello');
+    
+    return res.status(200).json(res.locals.user.items);
 });
 
 
-router.patch('/update', userController.addItem, (req, res) => {
+router.patch('/update', sessionController.isLoggedIn, userController.updateItem, (req, res) => {
     
-    //? return data or html file?
-    return res.status(200).json('hello');
+    
+    return res.status(200).json(res.locals.user.items);
 })
 
-router.delete('/delete', userController.createUser, (req, res) => {
+router.delete('/delete', sessionController.isLoggedIn, userController.deleteItem, (req, res) => {
     
-    //? return data or html file?
-    return res.status(200).json('hello');
+   
+    return res.status(200).json('task officially deleted');
 })
 
 
