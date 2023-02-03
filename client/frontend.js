@@ -56,11 +56,18 @@ function todo(container) {
 
   //append the number of items done
   container.appendChild(done);
+
+  //within the container append the item container because appending it to the form when selecting enter in the input fields, that will cause the delete click event listener to trigger
+  //https://stackoverflow.com/questions/67893233/why-does-hitting-enter-in-a-textbox-trigger-a-click-event-in-another-button
+  container.appendChild(itemList);
+
   //append to the todo container the form
   container.appendChild(form);
 
-  //within the form append the following children: item container
-  form.appendChild(itemList);
+  const logoutButton = document.createElement('button');
+  logoutButton.innerText = 'Logout';
+  container.appendChild(document.createElement('br'));
+  container.appendChild(logoutButton);
 
   //input value
   form.appendChild(input);
@@ -75,13 +82,11 @@ function todo(container) {
 
     //! Add function being invoked. This is when the form is submitted
 
-    add(input.value);
-
     //!CREATE FUNCTIONALITY. After adding submitting a form, we are going to add a value to the backend
     const options = {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json;charset=utf-8",
       },
       body: JSON.stringify({
         taskName: input.value,
@@ -99,9 +104,10 @@ function todo(container) {
         window.location.replace("http://localhost:3000/");
       });
 
-  
+    add(input.value);
     //reset the form after we are done
     //form.reset();
+    input.value = "";
   });
 }
 
@@ -109,7 +115,7 @@ function todo(container) {
  *
  * !ADD FUNCTION - to actually put a new task to the screen
  */
-function add(input, status) {
+function add(input, status,id) {
   console.log(input);
   //create an li element to be a "todo" item
   const item = document.createElement("li");
@@ -136,7 +142,9 @@ function add(input, status) {
 
   item.appendChild(itemInput);
   item.appendChild(itemCheckbox);
+
   item.appendChild(deleteButton);
+
   item.setAttribute("id", "todoItem");
 
   //text-decoration: line-through;
@@ -168,38 +176,8 @@ function add(input, status) {
       });
   });
 
-  //! UPDATE FUNCTIONALITY - change the name of the item
-  itemInput.addEventListener("keypress", (e) => {
-    //preventing from submitting the form and creating a new task
-    e.preventDefault();
-
-    //condition to look for enter key
-    if ((e.key = "enter")) {
-      console.log("you edited the input value");
-      //TODO: update functionality to send updated value to backend
-
-      const options = {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nameUpdate: itemInput.value,
-        }),
-      };
-
-      fetch("http://localhost:3000/api/update", options)
-        .then((data) => data.json())
-        .then((data) => {
-          console.log(data);
-          //append the most recent item to bottom of the form items
-        });
-    }
-  });
-
   deleteButton.addEventListener("click", (e) => {
-    e.preventDefault();
-
+    console.log("you just hit the button");
     //TODO: fix this part
     const options = {
       method: "DELETE",
@@ -219,6 +197,33 @@ function add(input, status) {
       });
 
     item.remove();
+  });
+
+  //! UPDATE FUNCTIONALITY - change the name of the item
+  itemInput.addEventListener("change", (e) => {
+    console.log("changing the item");
+    //condition to look for enter key
+    if ((e.key = "Enter")) {
+      console.log("you edited the input value");
+      //TODO: update functionality to send updated value to backend
+
+      const options = {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nameUpdate: itemInput.value,
+        }),
+      };
+
+      fetch("http://localhost:3000/api/updateName", options)
+        .then((data) => data.json())
+        .then((data) => {
+          console.log(data);
+          //append the most recent item to bottom of the form items
+        });
+    }
   });
 
   //append the item to underneath the <ul> element

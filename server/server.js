@@ -22,9 +22,8 @@ app.use(express.json());
 //url encode requests to the backend so they are usable
 //add the extended option because body-parser is depreciated
 app.use(express.urlencoded({
-  extended: true
+  extended: false
 }));
-
 
 const MONGO_URI = 'mongodb://localhost:27017/gradAssessment'
 

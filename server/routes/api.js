@@ -50,13 +50,19 @@ router.patch('/update', sessionController.isLoggedIn, userController.updateItem,
     
     
     return res.status(200).json(res.locals.user.items);
-})
+});
+
+router.patch('/updateName', sessionController.isLoggedIn, userController.updateItemName, (req, res) => {
+    
+    
+    return res.status(200).json(res.locals.user.items);
+});
 
 router.delete('/delete', sessionController.isLoggedIn, userController.deleteItem, (req, res) => {
     
    
     return res.status(200).json('task officially deleted');
-})
+});
 
 
 

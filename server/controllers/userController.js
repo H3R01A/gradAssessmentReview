@@ -111,10 +111,8 @@ userController.getItems = async (req, res, next) => {
     //! The below is finding a user and then we are going to modify the items array assigned to the user
     const user = await User.findOne({ _id: userID });
 
-  
     console.log("this is user in getItems controller", { user });
 
- 
     res.locals.user = user;
 
     return next();
@@ -205,6 +203,47 @@ userController.updateItem = async (req, res, next) => {
     await User.findOneAndUpdate(
       { _id: userID },
       { items: user.items },
+      //the below new options ensures the new value is returned
+      { new: true, useFindAndModify: false }
+    );
+
+    res.locals.user = user;
+
+    return next();
+  } catch (err) {
+    console.log("Error in userController.updateItem" + err);
+    next({
+      log: "error on userController.updateItem middleware function",
+      message: {
+        error: err,
+      },
+    });
+  }
+};
+
+userController.updateItemName = async (req, res, next) => {
+  try {
+    console.log("made it userController - updateItemName");
+    //pull username and password from request body
+
+    const { nameUpdate } = req.body;
+
+    console.log({ nameUpdate });
+
+    //! we are pulling the userid from locals
+    const userID = res.locals.userId;
+
+    //! here we are going to query the database looking for the user because we have their id from the session
+    // const user = await User.findOne({ _id: userID });
+
+    //! The below is finding a user and then we are going to modify the items array assigned to the user
+    const user = await User.findOne({ _id: userID });
+
+    console.log("this is user in updateItemName controller", { user });
+
+    await User.findOneAndUpdate(
+      { _id: userID },
+      { "item.name": nameUpdate },
       //the below new options ensures the new value is returned
       { new: true, useFindAndModify: false }
     );
