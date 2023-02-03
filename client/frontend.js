@@ -15,17 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
     .then((data) => {
       console.log("loaded data", data);
 
-      //const taskList = document.querySelector("#itemList");
-
-      const itemsContainer = document.getElementById("itemList");
-      let itemHTML = "";
-
-      //TODO: Try to add data here...
       data.forEach((task) => {
-     
-
         add(task.name, task.status);
-
       });
     })
     .catch((err) => {
@@ -108,11 +99,10 @@ function todo(container) {
         window.location.replace("http://localhost:3000/");
       });
 
+  
     //reset the form after we are done
-    form.reset();
+    //form.reset();
   });
-
-
 }
 
 /**
@@ -120,8 +110,6 @@ function todo(container) {
  * !ADD FUNCTION - to actually put a new task to the screen
  */
 function add(input, status) {
-
-
   console.log(input);
   //create an li element to be a "todo" item
   const item = document.createElement("li");
