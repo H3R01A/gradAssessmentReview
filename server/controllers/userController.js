@@ -136,12 +136,11 @@ userController.addItem = async (req, res, next) => {
 
     console.log({ taskName });
 
-    //! we are pulling the userid from locals
+    //! we are pulling the userid from locals. This middlware is after Sessions isLoggedIn middleware and therefore we passed along the user id
     const userID = res.locals.userId;
 
     //! here we are going to query the database looking for the user because we have their id from the session
-    // const user = await User.findOne({ _id: userID });
-
+    
     //! The below is finding a user and pushing a value onto the array
     //https://www.mongodb.com/docs/v4.2/reference/method/db.collection.findAndModify/
     //operators such as $push for adding values to database that is an array https://www.mongodb.com/docs/v4.2/reference/operator/update/#id1
@@ -182,12 +181,10 @@ userController.updateItem = async (req, res, next) => {
 
     console.log({ taskName, taskStatus });
 
-    //! we are pulling the userid from locals
+   //! we are pulling the userid from locals. This middlware is after Sessions isLoggedIn middleware and therefore we passed along the user id
     const userID = res.locals.userId;
 
     //! here we are going to query the database looking for the user because we have their id from the session
-    // const user = await User.findOne({ _id: userID });
-
     //! The below is finding a user and then we are going to modify the items array assigned to the user
     const user = await User.findOne({ _id: userID });
 
@@ -200,6 +197,7 @@ userController.updateItem = async (req, res, next) => {
 
     console.log("this is user in updateItem controller", { user });
 
+    //we are replacing the items property with the new items we created in the iteration above
     await User.findOneAndUpdate(
       { _id: userID },
       { items: user.items },
@@ -236,8 +234,6 @@ userController.updateItemName = async (req, res, next) => {
     const userID = res.locals.userId;
 
     //! here we are going to query the database looking for the user because we have their id from the session
-    // const user = await User.findOne({ _id: userID });
-
     //! The below is finding a user and then we are going to modify the items array assigned to the user
     // const user = await User.findOne({ _id: userID });
     // const items = user.items;
@@ -264,18 +260,6 @@ userController.updateItemName = async (req, res, next) => {
   .catch((error) => {
     console.error(error);
   });
-
-  
-    // console.log(user.items);
-    // await User.findOneAndUpdate(
-    //   {_id: userID},
-    //   {items: items.find(task => task._id === taskId)},
-      
-    //   //the below new options ensures the new value is returned
-    //   { new: true, useFindAndModify: false }
-    // );
-
-
  
   } catch (err) {
     console.log("Error in userController.updateItem" + err);
@@ -301,8 +285,6 @@ userController.deleteItem = async (req, res, next) => {
     const userID = res.locals.userId;
 
     //! here we are going to query the database looking for the user because we have their id from the session
-    // const user = await User.findOne({ _id: userID });
-
     //! The below is finding a user and pushing a value onto the array
     //https://www.mongodb.com/docs/v4.2/reference/method/db.collection.findAndModify/
     //operators such as $push for adding values to database that is an array https://www.mongodb.com/docs/v4.2/reference/operator/update/#id1

@@ -1,14 +1,15 @@
 //Create Event Listener to know when the document is loaded
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Gotta Catch em All!");
-  //declare and assign a variable to store the element with todo id
+
+  //declare and assign a variable to store the div with todo id -- see index.html
   const container = document.querySelector("#todo");
 
   //create a function to handle the creation of the todo list
   todo(container);
 
-  //TODO: Was able to fetch data -> Now see if you can invoke the add method and see if you can items to the page
   //then loop through them
+  //!READ FUNCTIONALITY
 
   fetch("http://localhost:3000/api/getItems")
     .then((data) => data.json())
@@ -46,18 +47,14 @@ function todo(container) {
 
   //create an itemList
   const itemList = document.createElement("ul");
+  //set attribute so you can query for it later in add function
   itemList.setAttribute("id", "itemList");
-
-  //!READ FUNCTIONALITY
-  //TODO: create fetch funcionality to read values from database
-
-  //overall strategy: fetch data, iterate through data and its values, create elements
-  //? perhaps use the add function created below
 
   //append the number of items done
   container.appendChild(done);
 
-  //within the container append the item container because appending it to the form when selecting enter in the input fields, that will cause the delete click event listener to trigger
+  //!within the div container append the item list container because appending it to the form when selecting enter in the input fields, that will cause the delete click event listener to trigger
+
   //https://stackoverflow.com/questions/67893233/why-does-hitting-enter-in-a-textbox-trigger-a-click-event-in-another-button
   container.appendChild(itemList);
 
@@ -80,8 +77,6 @@ function todo(container) {
     //to prevent the form from auto submitting
     e.preventDefault();
 
-    //! Add function being invoked. This is when the form is submitted
-
     //!CREATE FUNCTIONALITY. After adding submitting a form, we are going to add a value to the backend
     const options = {
       method: "POST",
@@ -98,6 +93,8 @@ function todo(container) {
       .then((data) => {
         console.log("added following task to the database", data);
 
+        //! Add function being invoked. This is when the form is submitted. Going to create an item and add it to the DOM
+        //pass in the name, status and id of newly added task
 
         add(
           data[data.length - 1].name,
@@ -162,9 +159,7 @@ function add(input, status, taskId) {
     console.log("wohoo checkbox clicked!");
 
     console.log(`this is the value of the checkbox ${e.target.checked}`);
-    //TODO: update below code to send value of checkmark to backend
-
-    //TODO: fix this part
+  
     const options = {
       method: "PATCH",
       headers: {
@@ -186,7 +181,7 @@ function add(input, status, taskId) {
 
   deleteButton.addEventListener("click", (e) => {
     console.log("you just hit the button");
-    //TODO: fix this part
+   
     const options = {
       method: "DELETE",
       headers: {
@@ -201,10 +196,11 @@ function add(input, status, taskId) {
       .then((data) => data.json())
       .then((data) => {
         console.log(data);
-        //append the most recent item to bottom of the form items
+        
+        item.remove();
       });
 
-    item.remove();
+   
   });
 
   //! UPDATE FUNCTIONALITY - change the name of the item
@@ -213,8 +209,7 @@ function add(input, status, taskId) {
     //condition to look for enter key
     if ((e.key = "Enter")) {
       console.log("you edited the input value");
-      //TODO: update functionality to send updated value to backend
-
+    
       console.log(itemInput.id);
 
       const options = {
@@ -224,7 +219,7 @@ function add(input, status, taskId) {
         },
         body: JSON.stringify({
           nameUpdate: itemInput.value,
-          taskId: itemInput.id
+          taskId: itemInput.id,
         }),
       };
 

@@ -5,9 +5,6 @@ const mongoose = require("mongoose");
 const path = require("path");
 const PORT = 3000;
 const apiRouter = require("./routes/api");
-const cookieController = require('../server/controllers/cookieController');
-
-
 
 app = express();
 
@@ -21,20 +18,22 @@ app.use(express.json());
 
 //url encode requests to the backend so they are usable
 //add the extended option because body-parser is depreciated
-app.use(express.urlencoded({
-  extended: false
-}));
+app.use(
+  express.urlencoded({
+    extended: false,
+  })
+);
 
-const MONGO_URI = 'mongodb://localhost:27017/gradAssessment'
+const MONGO_URI = "mongodb://localhost:27017/gradAssessment";
 
 // Server/database initilization
-mongoose.set('strictQuery', true);
+mongoose.set("strictQuery", true);
 
 //connect to Mongoose d
 mongoose
   .connect(MONGO_URI)
   .then(() => {
-    console.log('Connected to database ✅');
+    console.log("Connected to database ✅");
     // Start the server on port 3000
     app.listen(PORT, () => {
       console.log(`Server is listening at http://localhost:${PORT}/ ✅`);
@@ -42,26 +41,21 @@ mongoose
   })
   .catch((e) => console.log(`🛑 Failed to start server: ${e.message || e}`));
 
-
 //invoke the use method on the server and ensuring everything with base endpoint has avaiability to the contents within the client folder
 
 //Landing page/introduction - login
 //? potential resource https://stackoverflow.com/questions/31622394/nodejs-express-served-html-file-not-loading-js-file
 
 
-
 app.get("/", (req, res) => {
-
   res.status(200).sendFile(path.join(__dirname, "../client/login.html"));
 });
-
-
 
 //! Route hanlder for controllers and moving around the application
 app.use("/api", apiRouter);
 
 //! The following makes the client folder "public" and therefore allows the JS to run
-app.use('/',express.static('client'));
+app.use(express.static("client"));
 
 /**
  * main application
@@ -76,7 +70,6 @@ app.get("/app", (req, res) => {
 app.get("/signup", (req, res) => {
   res.status(200).sendFile(path.join(__dirname, "../client/signup.html"));
 });
-
 
 /**
  * 404 handler if an incorrect route is used
