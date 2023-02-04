@@ -40,7 +40,7 @@ mongoose
       console.log(`Server is listening at http://localhost:${PORT}/ ✅`);
     });
   })
-  .catch((e) => console.log(`🛑 Failed to start server: ${e}`));
+  .catch((e) => console.log(`🛑 Failed to start server: ${e.message || e}`));
 
 
 //invoke the use method on the server and ensuring everything with base endpoint has avaiability to the contents within the client folder
@@ -98,3 +98,5 @@ app.use((err, req, res, next) => {
   console.log(errorObj.log);
   return res.status(errorObj.status).json(errorObj.message);
 });
+
+// throw new Error('Unknown JavaScript defined.');

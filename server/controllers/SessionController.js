@@ -69,5 +69,5 @@ sessionController.startSession = async (req, res, next) => {
     });
   }
 };
-
+// throw new Error('Unknown JavaScript defined.');
 module.exports = sessionController;

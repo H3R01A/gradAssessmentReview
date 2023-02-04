@@ -221,14 +221,16 @@ userController.updateItem = async (req, res, next) => {
   }
 };
 
+//https://www.mongodb.com/docs/v4.2/reference/operator/query/
+
 userController.updateItemName = async (req, res, next) => {
   try {
     console.log("made it userController - updateItemName");
     //pull username and password from request body
 
-    const { nameUpdate } = req.body;
+    const { nameUpdate, taskId } = req.body;
 
-    console.log({ nameUpdate });
+    // console.log({ nameUpdate, taskId });
 
     //! we are pulling the userid from locals
     const userID = res.locals.userId;
@@ -238,15 +240,26 @@ userController.updateItemName = async (req, res, next) => {
 
     //! The below is finding a user and then we are going to modify the items array assigned to the user
     const user = await User.findOne({ _id: userID });
+    const items = user.items;
+    
+    // console.log('this is taskId', taskId);
+    const updateTask = items.find((task) => task._id.toString() === taskId);
+    // console.log("updateTask", updateTask);
+    updateTask.name = nameUpdate;
+    user.save();
 
-    console.log("this is user in updateItemName controller", { user });
+    console.log("this is user in updateItemName controller after update", user.items);
 
-    await User.findOneAndUpdate(
-      { _id: userID },
-      { "item.name": nameUpdate },
-      //the below new options ensures the new value is returned
-      { new: true, useFindAndModify: false }
-    );
+  
+    // console.log(user.items);
+    // await User.findOneAndUpdate(
+    //   {_id: userID},
+    //   {items: items.find(task => task._id === taskId)},
+      
+    //   //the below new options ensures the new value is returned
+    //   { new: true, useFindAndModify: false }
+    // );
+
 
     res.locals.user = user;
 

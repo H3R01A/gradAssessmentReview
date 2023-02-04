@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("loaded data", data);
 
       data.forEach((task) => {
-        add(task.name, task.status);
+        add(task.name, task.status, task._id);
       });
     })
     .catch((err) => {
@@ -64,9 +64,9 @@ function todo(container) {
   //append to the todo container the form
   container.appendChild(form);
 
-  const logoutButton = document.createElement('button');
-  logoutButton.innerText = 'Logout';
-  container.appendChild(document.createElement('br'));
+  const logoutButton = document.createElement("button");
+  logoutButton.innerText = "Logout";
+  container.appendChild(document.createElement("br"));
   container.appendChild(logoutButton);
 
   //input value
@@ -97,6 +97,13 @@ function todo(container) {
       .then((data) => data.json())
       .then((data) => {
         console.log("added following task to the database", data);
+
+
+        add(
+          data[data.length - 1].name,
+          data[data.length - 1].status,
+          data[data.length - 1]._id
+        );
       })
       .catch((err) => {
         console.log("this is err", err);
@@ -104,7 +111,7 @@ function todo(container) {
         window.location.replace("http://localhost:3000/");
       });
 
-    add(input.value);
+    //add(input.value);
     //reset the form after we are done
     //form.reset();
     input.value = "";
@@ -115,7 +122,7 @@ function todo(container) {
  *
  * !ADD FUNCTION - to actually put a new task to the screen
  */
-function add(input, status,id) {
+function add(input, status, taskId) {
   console.log(input);
   //create an li element to be a "todo" item
   const item = document.createElement("li");
@@ -125,6 +132,7 @@ function add(input, status,id) {
 
   //set the value of the input field to be the value of the item added
   itemInput.setAttribute("value", input);
+  itemInput.setAttribute("id", taskId);
 
   //create checkbox to append to item as well
   const itemCheckbox = document.createElement("input");
@@ -207,6 +215,8 @@ function add(input, status,id) {
       console.log("you edited the input value");
       //TODO: update functionality to send updated value to backend
 
+      console.log(itemInput.id);
+
       const options = {
         method: "PATCH",
         headers: {
@@ -214,6 +224,7 @@ function add(input, status,id) {
         },
         body: JSON.stringify({
           nameUpdate: itemInput.value,
+          taskId: itemInput.id
         }),
       };
 
