@@ -239,16 +239,31 @@ userController.updateItemName = async (req, res, next) => {
     // const user = await User.findOne({ _id: userID });
 
     //! The below is finding a user and then we are going to modify the items array assigned to the user
-    const user = await User.findOne({ _id: userID });
-    const items = user.items;
+    // const user = await User.findOne({ _id: userID });
+    // const items = user.items;
     
-    // console.log('this is taskId', taskId);
-    const updateTask = items.find((task) => task._id.toString() === taskId);
-    // console.log("updateTask", updateTask);
-    updateTask.name = nameUpdate;
-    user.save();
+    // // console.log('this is taskId', taskId);
+    // const updateTask = items.find((task) => task._id.toString() === taskId);
+    // // console.log("updateTask", updateTask);
+    // updateTask.name = nameUpdate;
+    // user.save();
 
-    console.log("this is user in updateItemName controller after update", user.items);
+    // console.log("this is user in updateItemName controller after update", user.items);
+    
+    User.findOneAndUpdate(
+  { _id: userID,  'items._id': taskId },
+  { $set: { 'items.$.name': nameUpdate } },
+  { new: true }
+)
+  .then((updatedUser) => {
+    console.log('Item name successfully updated:', updatedUser.items);
+       res.locals.user = updatedUser;
+
+    return next();
+  })
+  .catch((error) => {
+    console.error(error);
+  });
 
   
     // console.log(user.items);
@@ -261,9 +276,7 @@ userController.updateItemName = async (req, res, next) => {
     // );
 
 
-    res.locals.user = user;
-
-    return next();
+ 
   } catch (err) {
     console.log("Error in userController.updateItem" + err);
     next({
